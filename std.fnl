@@ -28,6 +28,14 @@
          (table.insert arr (. s i)))
     arr))
 
+(lambda std.take-while
+  [p s]
+  "Gets values from the sequence until p is falsey"
+  (var i 1)
+  (while (and (<= i (length s)) (p (. s i)))
+    (set i (+ i 1)))
+  (std.take (- i 1) s))
+
 (lambda std.drop
   [n s]
   "Get s with the first n values removed as a new array."
@@ -35,6 +43,14 @@
     (for [i (+ n 1) (length s)]
          (table.insert arr (. s i)))
     arr))
+
+(lambda std.drop-while
+  [p s]
+  "Get s with the first sequence of (p v) values removed." ;; TODO fix this horrible docstring
+  (var i 1)
+  (while (and (<= i (length s)) (p (. s i)))
+    (set i (+ i 1)))
+  (std.drop (- i 1) s))
 
 (lambda std.first
   [s]
