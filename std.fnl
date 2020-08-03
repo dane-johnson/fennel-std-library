@@ -141,6 +141,17 @@
         (loop (std.cons tbl [k (. t k)]) (next t k))
         tbl)))
 
+(lambda std.some
+  [p s]
+  "Returns the first value of s where (p v) is truthy, or nil if none are."
+  (var tval nil)
+  (var i 1)
+  (while (and (not tval) (<= i (length s)))
+    (when (p (. s i))
+      (set tval (. s i)))
+    (set i (+ i 1)))
+  tval)
+
 (lambda std.keys
   [t]
   (std.map std.first (std.kvs t)))
