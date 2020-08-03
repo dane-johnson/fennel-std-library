@@ -149,6 +149,15 @@
         (std.apply f vs))
   nil)
 
+(lambda std.filter
+  [p s]
+  "Returns the elements of s such that (p v) is true as a new table."
+  (let [tbl []]
+    (each [_ v (ipairs s)]
+      (when (p v)
+        (table.insert tbl v)))
+    tbl))
+
 (lambda std.kvs
   [t]
   (let* loop [tbl []
