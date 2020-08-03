@@ -168,6 +168,16 @@
     (set i (+ i 1)))
   tval)
 
+(lambda std.find
+  [p s]
+  "Returns the index first value of s where (p v) is truthy, or nil if none are."
+  (var i 1)
+  (while (and (<= i (length s)) (not (p (. s i))))
+    (set i (+ i 1)))
+  (if (<= i (length s))
+    i
+    nil))
+
 (lambda std.keys
   [t]
   (std.map std.first (std.kvs t)))
