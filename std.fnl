@@ -188,7 +188,7 @@
   (let* loop [tbl []
               k (next t)]
     (if k
-        (loop (std.cons tbl [k (. t k)]) (next t k))
+        (loop (std.cons [k (. t k)] tbl) (next t k))
         tbl)))
 
 (lambda std.keys
