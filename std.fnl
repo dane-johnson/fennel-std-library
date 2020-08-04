@@ -1,6 +1,6 @@
 (local std {})
 
-(import-macros {: cond} :std-macros)
+(require-macros :std-macros)
 
 (lambda std.not
   [x]
@@ -162,14 +162,6 @@
           (table.insert tbl v))))
     tbl))
 
-(lambda std.kvs
-  [t]
-  (let* loop [tbl []
-              k (next t)]
-    (if k
-        (loop (std.cons tbl [k (. t k)]) (next t k))
-        tbl)))
-
 (lambda std.some
   [p s]
   "Returns the first value of s where (p v) is truthy, or nil if none are."
@@ -190,6 +182,14 @@
   (if (<= i (length s))
     i
     nil))
+
+(lambda std.kvs
+  [t]
+  (let* loop [tbl []
+              k (next t)]
+    (if k
+        (loop (std.cons tbl [k (. t k)]) (next t k))
+        tbl)))
 
 (lambda std.keys
   [t]
