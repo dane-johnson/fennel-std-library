@@ -150,12 +150,16 @@
   nil)
 
 (lambda std.filter
-  [p s]
-  "Returns the elements of s such that (p v) is true as a new table."
+  [p s ?hash?]
+  "Returns the elements of s such that (p v) is true as a new table. If ashash? treat as a hash table (retain keys)."
   (let [tbl []]
-    (each [_ v (ipairs s)]
-      (when (p v)
-        (table.insert tbl v)))
+    (if ?hash?
+      (each [k v (pairs s)]
+        (when (p v)
+          (tset tbl k v)))
+      (each [_ v (ipairs s)]
+        (when (p v)
+          (table.insert tbl v))))
     tbl))
 
 (lambda std.kvs
