@@ -18,7 +18,7 @@
   (let [args [...]]
     (if (std.empty? args)
         f
-        (fn [x] (f ((std.comp (unpack args)) x))))))
+        (fn [x] (f ((std.comp (table.unpack args)) x))))))
 
 (lambda std.take
   [n s]
@@ -91,8 +91,8 @@
   [f ...]
   "Calls f with args, unpacking the last argument."
   (if (= (length [...]) 1)
-      (f (unpack (std.first [...])))
-      (f (unpack (std.butlast [...])) (unpack (std.last [...])))))
+      (f (table.unpack (std.first [...])))
+      (f (table.unpack (std.butlast [...])) (table.unpack (std.last [...])))))
 
 (lambda std.cons
   [v s]
@@ -122,12 +122,12 @@
       k
       (std.foldl f (f k (std.first s)) (std.rest s))))
 
-(lambda std.interleave
+(lambda std.zip
   [...]
   "Returns the first value of each sequence, then the second, etc. up to the length of the shortest sequence"
   (if (std.every? (std.comp std.not std.empty?) [...])
       (std.cons (std.map std.first [...])
-                (std.apply std.interleave (std.map std.rest [...])))
+                (std.apply std.zip (std.map std.rest [...])))
       []))
 
 (lambda std.map
@@ -138,20 +138,20 @@
         ;; This avoids mutual recursion
         (each [_ v (ipairs s)]
           (table.insert tbl (f v)))
-        (each [_ vs (ipairs (std.interleave s ...))]
+        (each [_ vs (ipairs (std.zip s ...))]
           (table.insert tbl (std.apply f vs))))
     tbl))
 
 (lambda std.foreach
   [f s ...]
   "Calls f on each element of s, presumably for side effects. Returns nil."
-  (each [_ vs (ipairs (std.interleave s ...))]
+  (each [_ vs (ipairs (std.zip s ...))]
         (std.apply f vs))
   nil)
 
 (lambda std.filter
   [p s ?hash?]
-  "Returns the elements of s such that (p v) is true as a new table. If ashash? treat as a hash table (retain keys)."
+  "Returns the elements of s such that (p v) is true as a new table. If hash? treat as a hash table (retain keys)."
   (let [tbl []]
     (if ?hash?
       (each [k v (pairs s)]
@@ -198,5 +198,46 @@
 (lambda std.vals
   [t]
   (std.map std.second (std.kvs t)))
+
+(lambda std.table?
+  [t]
+  "Returns true if t is a table "
+  (= (type t) :table))
+
+(lambda std.equal?
+  [v1 v2]
+  "Returns true if v1 and v2 are scalars and v1 = v2 or if v1 and v2 are tables with the same length and all values are equal."
+  (if (and (not (std.table? v1))
+           (not (std.table? v2)))
+      (= v1 v2)
+      (and (std.table? v1)
+           (std.table? v2)
+           (= (length v1) (length v2)))
+      (std.every? #(std.equal? (std.first $) (std.second $)) (std.zip v1 v2))
+      false))
+
+(fn std.range
+  [start/end ?end ?step]
+  "Returns a list from start to end by step."
+  (local accum [])
+  (var start 1)
+  (var end start/end)
+  (var step 1)
+  (if ?step
+      (do
+       (set start start/end)
+       (set end ?end)
+       (set step ?step))
+      ?end
+      (do
+       (set start start/end)
+       (set end ?end)))
+  (var i start)
+  (while (or (and (> step 0) (< i end))
+             (and (< step 0) (> i end)))
+    (table.insert accum i)
+    (set i (+ step i)))
+  (table.insert accum end)
+  accum)
 
 std
